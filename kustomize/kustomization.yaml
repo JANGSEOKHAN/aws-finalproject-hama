@@ -1,0 +1,15 @@
+# base/kustomization.yaml
+resources:
+  - hama-auth-deploy-svc.yaml
+  - hama-budget-deploy-svc.yaml
+  - hama-chat-deploy-svc.yaml
+  - hama-frontend-deploy-svc.yaml
+  - hama-image-thumbnail-deploy-svc.yaml
+  - hama-image-upload-deploy-svc.yaml
+  - hama-ocr-deploy-svc.yaml
+  - hama-product-deploy-svc.yaml
+  - hama-review-deploy-svc.yaml
+  - hama-shoppingcart-deploy-svc.yaml
+images:
+  - name: registry.example.com/hama/hama-frontend
+    newTag: "287"

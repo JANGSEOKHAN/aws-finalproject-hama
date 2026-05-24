@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: hama-ocr
+  name: hama-ocr-deployment
+  namespace: hama-review-finance-ns
+  annotations:
+    sidecar.istio.io/config: |
+      proxyMetadata:
+        ISTIO_META_STARTUP_PROBE_DELAY: "60"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-ocr
+  template:
+    metadata:
+      labels:
+        app: hama-ocr
+    spec:
+      containers:
+      - env:
+        - name: AWS_BEDROCK_MODEL_ID
+          valueFrom:
+            configMapKeyRef:
+              name: hama-ocr-config
+              key: AWS_BEDROCK_MODEL_ID
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: hama-ocr-config
+              key: AWS_REGION
+        - name: AWS_S3_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: hama-ocr-config
+              key: AWS_S3_BUCKET_NAME
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-ocr-config
+              key: PORT
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: hama-ocr-sec
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hama-ocr-sec
+              key: AWS_SECRET_ACCESS_KEY
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: hama-ocr-sec
+              key: REDIS_PASSWORD
+        image: registry.example.com/hama/hama-ocr:1.0 
+        name: hama-ocr
+        ports:
+        - containerPort: 3006
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-ocr
+  name: hama-ocr-svc
+  namespace: hama-review-finance-ns
+spec:
+  ports:
+  - name: hama-ocr-svc
+    port: 3206
+    targetPort: 3006
+  selector:
+    app: hama-ocr
+  type: ClusterIP

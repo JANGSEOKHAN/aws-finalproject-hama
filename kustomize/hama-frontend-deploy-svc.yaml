@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hama-frontend
+  name: hama-front-deployment
+  namespace: hama-front-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-frontend
+  template:
+    metadata:
+      labels:
+        app: hama-frontend
+    spec:
+      containers:
+      - name: hama-frontend
+        image: registry.example.com/hama/hama-frontend:246
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NEXT_PUBLIC_BACKEND_AUTH_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_AUTH_URL
+        - name: NEXT_PUBLIC_BACKEND_BUDGET_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_BUDGET_URL
+        - name: NEXT_PUBLIC_BACKEND_CART_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_CART_URL
+        - name: NEXT_PUBLIC_BACKEND_CHAT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_CHAT_URL
+        - name: NEXT_PUBLIC_BACKEND_OCR_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_OCR_URL
+        - name: NEXT_PUBLIC_BACKEND_REVIEW_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_REVIEW_URL
+        - name: NEXT_PUBLIC_BACKEND_SEARCH_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_SEARCH_URL
+        - name: NEXT_PUBLIC_BACKEND_UPLOAD_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-front-config
+              key: NEXT_PUBLIC_BACKEND_UPLOAD_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-frontend
+  name: hama-frontend-svc
+  namespace: hama-front-ns
+spec:
+  selector:
+    app: hama-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: hama-frontend-gateway
+  namespace: hama-front-ns
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: hama-frontend-vs
+  namespace: hama-front-ns
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - hama-frontend-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: hama-frontend-svc.hama-front-ns.svc.cluster.local
+            port:
+              number: 80

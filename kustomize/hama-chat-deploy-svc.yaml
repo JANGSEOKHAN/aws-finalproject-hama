@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hama-chat
+  name: hama-chat-deployment
+  namespace: hama-chat-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-chat
+  template:
+    metadata:
+      labels:
+        app: hama-chat
+      annotations:
+        sidecar.istio.io/config: |
+          proxyMetadata:
+            ISTIO_META_STARTUP_PROBE_DELAY: "30"
+    spec:
+      containers:
+      - env:
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: hama-chat-config
+              key: JWT_SECRET
+        - name: PERPLEXITY_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-chat-config
+              key: PERPLEXITY_API_URL
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-chat-config
+              key: PORT
+        - name: PERPLEXITY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hama-chat-sec
+              key: PERPLEXITY_API_KEY
+        image: registry.example.com/hama/hama-chat:1.0
+        name: hama-chat
+        ports:
+        - containerPort: 3009
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-chat
+  name: hama-chat-svc
+  namespace: hama-chat-ns
+spec:
+  ports:
+  - port: 3209
+    targetPort: 3009
+  selector:
+    app: hama-chat
+  type: ClusterIP

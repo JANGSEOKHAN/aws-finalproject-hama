@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hama-auth
+  name: hama-auth-deployment
+  namespace: hama-auth-ns
+  annotations:
+    sidecar.istio.io/config: |
+      proxyMetadata:
+        ISTIO_META_STARTUP_PROBE_DELAY: "60"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-auth
+  template:
+    metadata:
+      labels:
+        app: hama-auth
+    spec:
+      containers:
+      - env:
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: hama-auth-config
+              key: JWT_SECRET
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-auth-config
+              key: PORT
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: hama-auth-config
+              key: REDIS_HOST
+        - name: REDIS_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: hama-auth-config
+              key: REDIS_PASSWORD
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-auth-config
+              key: REDIS_PORT
+        - name: SESSION_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: hama-auth-config
+              key: SESSION_SECRET
+        - name: GOOGLE_CALLBACK_URL
+          valueFrom:
+            configMapKeyRef:
+              name: hama-auth-config
+              key: GOOGLE_CALLBACK_URL
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: hama-auth-sec
+              key: GOOGLE_CLIENT_ID
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: hama-auth-sec
+              key: GOOGLE_CLIENT_SECRET
+        image: registry.example.com/hama/hama-auth:1.0
+        name: hama-auth
+        ports:
+        - containerPort: 3001
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-auth
+  name: hama-auth-svc
+  namespace: hama-auth-ns
+spec:
+  ports:
+  - port: 3201
+    targetPort: 3001
+  selector:
+    app: hama-auth
+  type: ClusterIP
+

@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hama-image-thumbnail
+  name: hama-image-thumbnail-deployment
+  namespace: hama-image-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-image-thumbnail
+  template:
+    metadata:
+      labels:
+        app: hama-image-thumbnail
+    spec:
+      containers:
+      - name: hama-image-thumbnail
+        env:
+        - name: AWS_ORIGINAL_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: hama-image-thumbnail-config
+              key: AWS_ORIGINAL_BUCKET_NAME
+        - name: AWS_ORIGINAL_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: hama-image-thumbnail-config
+              key: AWS_ORIGINAL_REGION
+        - name: AWS_THUMBNAIL_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: hama-image-thumbnail-config
+              key: AWS_THUMBNAIL_BUCKET_NAME
+        - name: AWS_THUMBNAIL_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: hama-image-thumbnail-config
+              key: AWS_THUMBNAIL_REGION
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-image-thumbnail-config
+              key: PORT
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: hama-image-thumbnail-sec
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hama-image-thumbnail-sec
+              key: AWS_SECRET_ACCESS_KEY
+        image: registry.example.com/hama/hama-image-thumbnail:1.0
+        ports:
+        - containerPort: 3003
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-image-thumbnail
+  name: hama-image-thumbnail-svc
+  namespace: hama-image-ns
+spec:
+  ports:
+  - port: 3203
+    targetPort: 3003
+  selector:
+    app: hama-image-thumbnail
+  type: ClusterIP

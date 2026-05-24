@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hama-product
+  name: hama-product-deployment
+  namespace: hama-product-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-product
+  template:
+    metadata:
+      labels:
+        app: hama-product
+    spec:
+      containers:
+      - env:
+        - name: ELASTICSEARCH_NODE
+          valueFrom:
+            configMapKeyRef:
+              name: hama-product-config
+              key: ELASTICSEARCH_NODE
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: hama-product-config
+              key: MONGODB_URI
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-product-config
+              key: PORT                
+        image: registry.example.com/hama/hama-product:1.0
+        name: hama-product
+        ports:
+        - containerPort: 3007
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-product
+  name: hama-product-svc
+  namespace: hama-product-ns
+spec:
+  ports:
+  - port: 3207
+    targetPort: 3007
+  selector:
+    app: hama-product
+  type: ClusterIP

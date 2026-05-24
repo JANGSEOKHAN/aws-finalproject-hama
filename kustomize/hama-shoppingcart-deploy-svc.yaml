@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: hama-shoppingcart
+  name: hama-shoppingcart-deployment
+  namespace: hama-review-finance-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-shoppingcart
+  template:
+    metadata:
+      labels:
+        app: hama-shoppingcart
+    spec:
+      containers:
+      - env:
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: hama-shoppingcart-config
+              key: JWT_SECRET
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: hama-shoppingcart-config
+              key: MONGODB_URI
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-shoppingcart-config
+              key: PORT
+        image: registry.example.com/hama/hama-shoppingcart:1.0 
+        name: hama-shoppingcart
+        ports:
+        - containerPort: 3008
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-shoppingcart
+  name: hama-shoppingcart-svc
+  namespace: hama-review-finance-ns
+spec:
+  ports:
+  - name: hama-shoppingcart-svc
+    port: 3208
+    targetPort: 3008
+  selector:
+    app: hama-shoppingcart
+  type: ClusterIP

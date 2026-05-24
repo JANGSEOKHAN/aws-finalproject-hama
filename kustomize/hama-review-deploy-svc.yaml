@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: hama-review
+  name: hama-review-deployment
+  namespace: hama-review-finance-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hama-review
+  template:
+    metadata:
+      labels:
+        app: hama-review
+    spec:
+      containers:
+      - env:
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: hama-review-config
+              key: JWT_SECRET
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: hama-review-config
+              key: MONGODB_URI
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: hama-review-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: hama-review-config
+              key: REDIS_PORT
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: hama-review-sec
+              key: REDIS_PASSWORD
+        image: jangseokhan123/hama-review:1.0
+        name: hama-review
+        ports:
+        - containerPort: 3004
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hama-review
+  name: hama-review-svc
+  namespace: hama-review-finance-ns
+spec:
+  ports:
+  - name: hama-review-svc
+    port: 3204
+    targetPort: 3004
+  selector:
+    app: hama-review
+  type: ClusterIP
