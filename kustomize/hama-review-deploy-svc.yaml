@@ -43,7 +43,7 @@ spec:
             secretKeyRef:
               name: hama-review-sec
               key: REDIS_PASSWORD
-        image: jangseokhan123/hama-review:1.0
+        image: registry.example.com/hama/hama-review:1.0
         name: hama-review
         ports:
         - containerPort: 3004
