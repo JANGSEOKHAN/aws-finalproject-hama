@@ -104,7 +104,10 @@ function SignupForm() {
       if (response.ok) {
         console.log('=== 회원가입 성공 ===');
         const { access_token, refresh_token, userInfo } = data;
-        console.log('받은 토큰들:', { access_token, refresh_token });
+        console.log('토큰 발급 상태:', {
+          hasAccessToken: Boolean(access_token),
+          hasRefreshToken: Boolean(refresh_token),
+        });
         console.log('받은 userInfo (raw):', userInfo);
 
         try {

@@ -15,7 +15,7 @@ export default function CommunityPage() {
     const fetchItems = async () => {
       try {
         const accessToken = localStorage.getItem('access_token');
-        console.log('Using access token:', accessToken); // 토큰 확인
+        console.log('Access token present:', Boolean(accessToken)); // 토큰 존재 여부 확인
 
         const response = await fetch('/api/reviews', {
           headers: {
@@ -31,7 +31,6 @@ export default function CommunityPage() {
         }
 
         const responseData = await response.json();
-        console.log('전체 응답 데이터:', responseData); // 전체 응답 데이터 확인
 
         const reviews = responseData.data || [];
         console.log('리뷰 데이터 길이:', reviews.length); // 데이터 배열 길이 확인

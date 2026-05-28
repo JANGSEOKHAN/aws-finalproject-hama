@@ -221,7 +221,11 @@ export default function HomePage() {
       console.log('API 응답 받음:', response.status);
       
       const data = await response.json();
-      console.log('응답 데이터:', data);
+      console.log('로그인 응답 수신:', {
+        ok: response.ok,
+        hasAccessToken: Boolean(data.access_token),
+        hasRefreshToken: Boolean(data.refresh_token),
+      });
 
       if (!response.ok) {
         throw new Error(data.message || '로그인에 실패했습니다.');

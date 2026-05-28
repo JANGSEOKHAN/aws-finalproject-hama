@@ -135,10 +135,11 @@ export default function Header({ onLogin }) {
 
   const handleLogout = () => {
     console.log('=== 로그아웃 시작 ===');
-    console.log('제거할 토큰들:');
-    console.log('Access Token:', localStorage.getItem('access_token'));
-    console.log('Refresh Token:', localStorage.getItem('refresh_token'));
-    console.log('User Data:', localStorage.getItem('user'));
+    console.log('제거할 인증 정보 상태:', {
+      hasAccessToken: Boolean(localStorage.getItem('access_token')),
+      hasRefreshToken: Boolean(localStorage.getItem('refresh_token')),
+      hasUserData: Boolean(localStorage.getItem('user')),
+    });
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -150,10 +151,11 @@ export default function Header({ onLogin }) {
     }
 
     console.log('=== 로그아웃 완료 ===');
-    console.log('토큰 제거 후 상태:');
-    console.log('Access Token:', localStorage.getItem('access_token'));
-    console.log('Refresh Token:', localStorage.getItem('refresh_token'));
-    console.log('User Data:', localStorage.getItem('user'));
+    console.log('인증 정보 제거 후 상태:', {
+      hasAccessToken: Boolean(localStorage.getItem('access_token')),
+      hasRefreshToken: Boolean(localStorage.getItem('refresh_token')),
+      hasUserData: Boolean(localStorage.getItem('user')),
+    });
 
     // 메인 페이지로 리다이렉트
     window.location.href = '/';
