@@ -195,11 +195,16 @@ export default function HomePage() {
 
   const handleLogin = async () => {
     console.log('=== 로그인 프로세스 시작 ===');
-    console.log('고정 googleId로 로그인 시도:', '106517685696893761191');
     
     try {
       setLoading(true);
-      const googleId = '106517685696893761191';
+      const googleId = process.env.NEXT_PUBLIC_DEMO_GOOGLE_ID;
+
+      if (!googleId) {
+        console.warn('Demo Google login is disabled. Set NEXT_PUBLIC_DEMO_GOOGLE_ID in a local environment if needed.');
+        setLoading(false);
+        return;
+      }
       
       // API 호출 전
       console.log('API 호출 시작 - POST /api/auth/google/login');
